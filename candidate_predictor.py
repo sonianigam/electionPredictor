@@ -1,0 +1,8 @@
+import setup
+
+def main():
+    tweets = setup.tweets
+    print tweets["hillary"][0]
+
+if __name__ == "__main__":
+    main()
