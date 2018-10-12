@@ -2,32 +2,26 @@ import tweepy
 import math
 import cPickle as pickle
 import pdb
-import nltk
-from nltk.tokenize import word_tokenize
+from nltk.tokenize.casual import TweetTokenizer
+import config
 
-consumer_key = "2j6vyRQ2DRerDGAQomcWfS8Ll"
-secret_consumer_key = "28408qxsr8IzB0rghucxBDWqoOOvsbsYeIkJOJ3bQraVEsVKhC"
-
-access_token = "497637135-krBrPRVaYlYm7FO0t4j8Ci6TzWkwlXab6E3vpEID"
-secret_access_token = "RYuXPTCICXX0SgDMJ2Cu8GMkHVVAmBjYcUsRCDdYK5OSi"
-
-auth = tweepy.OAuthHandler(consumer_key, secret_consumer_key)
-auth.set_access_token(access_token, secret_access_token)
-
+auth = tweepy.OAuthHandler(config.consumer_key, config.secret_consumer_key)
+auth.set_access_token(config.access_token, config.secret_access_token)
 api = tweepy.API(auth)
 
-accounts = {"hillary": ["HillaryClinton", "Beyonce", "kittukolluri", "Clanglotz"], "trump": ["realDonaldTrump", "peterthiel", "EdButowsky", "taylorjackson02", "ben_jammin002"], "bernie": ["BernieSanders", "Kaepernick7", "abzabec"]}
+accounts = {"hillary": ["HillaryClinton", "johnlegend", "kittukolluri", "Clanglotz"], "trump": ["realDonaldTrump", "EdButowsky", "taylorjackson02", "ben_jammin002"], "bernie": ["BernieSanders", "Kaepernick7", "abzabec"]}
 
 tweets = {"hillary": [], "trump": [], "bernie": []}
 
 try:
     tweets = pickle.load(open("tweets.pickle", "rb"))
 except (OSError, IOError) as e:
+    tokenizer = TweetTokenizer(preserve_case=False, reduce_len=True)
     for candidate in accounts:
         supporters = accounts[candidate]
         number = math.floor(1000/len(supporters))
         for user in supporters:
             user_tweets = api.user_timeline(user, count = number)
-            tweets[candidate].extend([word_tokenize(t.text) for t in user_tweets])
+            tweets[candidate].extend([tokenizer.tokenize(t.text.encode("utf-8")) for t in user_tweets])
 
     pickle.dump(tweets, open("tweets.pickle", "wb"))
